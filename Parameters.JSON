@@ -1,0 +1,14 @@
+{
+    "top": 500,
+    "bottom": 0,
+    "left": 0,
+    "right": 500,
+    "inf_prob": 0.5,
+    "fatality": 0.08,
+    "recovery period": 1000000,
+    "min speed": 1,
+    "max speed": 2,
+    "min size": 10,
+    "max size": 10
+
+}
