@@ -1,6 +1,5 @@
 import Particle
 import random
-import copy
 import collision_detection as cd
 import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
@@ -10,9 +9,10 @@ class Spread(object):
     Simulates the spreading of an infection by way of physical interaction
     """
     def __init__(self,population,initial_infected,params):
-        self.particles = [Particle.Particle([random.randint(params["bottom"],params["top"]),random.randint(params["left"],params["right"])],
-                              [random.randint(params["min speed"],params["max speed"])*(-1)**random.randint(1,2),random.randint(params["min speed"],params["max speed"])*(-1)**random.randint(1,2)],
-                              random.randint(params["min size"], params["max size"]),params) for i in range(0,population)]
+        self.params=params
+        self.particles = [Particle.Particle([random.randint(self.params["bottom"],self.params["top"]),random.randint(self.params["left"],self.params["right"])],
+                              [random.randint(self.params["min speed"],self.params["max speed"])*(-1)**random.randint(1,2),random.randint(self.params["min speed"],self.params["max speed"])*(-1)**random.randint(1,2)],
+                              random.randint(self.params["min size"], self.params["max size"]),self.params) for i in range(0,population)]
         self.stats = {"healthy":population,"infected":initial_infected,"cured":0,"dead":0}
         self.num=population
         self.init_inf=initial_infected
@@ -32,11 +32,11 @@ class Spread(object):
                 count_dead+=1
             else:
                 count_healthy+=1
-        stats["healthy"]=count_healthy
-        stats["dead"]=count_dead
-        stats["cured"]=count_cured
-        stats["infected"]=count_infected
-        return stats
+        self.stats["healthy"]=count_healthy
+        self.stats["dead"]=count_dead
+        self.stats["cured"]=count_cured
+        self.stats["infected"]=count_infected
+        return self.stats
 
     def isolate_Particles(self,low):
         if low:
@@ -48,33 +48,29 @@ class Spread(object):
                 if random.random()<0.7:
                     particle.still=True
 
-    def setup_display():
+    def init_anim(self):
+        return self.patches
+
+    def animate(self,i):
+        cd.detect_collisions(self.particles,self.params)
+        self.stats=self.count_states()
+        return [particle.animate(i) for particle in self.particles]
+
+    def setup_display(self):
         fig=plt.figure()
         ax=plt.axes()
+        ax.axis("scaled")
+        ax.set_ylim(self.params["bottom"],self.params["top"])
+        ax.set_xlim(self.params["left"],self.params["top"])
+        plt.axis("off")
+        self.patches = [particle.patch() for particle in self.particles]
+        for patch in self.patches: ax.add_patch(patch)
+        return fig,ax
 
-    def run(isolate=False,low=True,display=True):
+    def run(self,isolate=False,low=True,display=True):
         if isolate:
             isolate_Particles(low)
+        fig,ax=self.setup_display()
         for i in range(0,self.init_inf): self.particles[i].inf=True
-        self.patches = [particle.patch() for particle in self.particles]
-        def init():
-            return patches
-        def animate(i):
-            cd.detect_collisions(self.particles)
-            self.stats=count_states(self.particles)
-
-            return [particle.animate(i) for particle in particles]
-        for patch in patches: ax.add_patch(patch) 
-        if display:
-            anim = FuncAnimation(fig,animate,init_func = init, repeat = False, interval = 1, blit = True)
-            ax.axis("scaled")
-            ax.set_ylim(params["bottom"],params["top"])
-            ax.set_xlim(params["left"],params["top"])
-            plt.axis("off")
-            plt.show()
-        else:
-            i=0
-            while stats["infected"]>0:
-                i+=1
-                animate(i)
-
+        anim = FuncAnimation(fig,self.animate,init_func = self.init_anim, repeat = False, interval = 1, blit = True)
+        plt.show()

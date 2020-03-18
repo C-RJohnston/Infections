@@ -1,9 +1,10 @@
-def grid_partition(particles):
+import copy
+def grid_partition(particles,params):
         top_right=[]
         top_left=[]
         bottom_right=[]
         bottom_left=[]
-        for particle in self.particles:
+        for particle in particles:
             if(particle.pos[1]>=params["top"]/2):
                 if(particle.pos[0]>=params["right"]/2):
                     top_right.append(particle)
@@ -16,8 +17,8 @@ def grid_partition(particles):
         return top_right,top_left,bottom_right,bottom_left
 
 
-def detect_collisions(particles):
-    quads=grid_partition(particles)
+def detect_collisions(particles,params):
+    quads=grid_partition(particles,params)
     for i in range(0,len(particles)):
         for quad in quads:
             if particles[i] in quad:

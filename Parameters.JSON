@@ -4,11 +4,11 @@
     "left": 0,
     "right": 500,
     "inf_prob": 0.5,
-    "fatality": 0.08,
+    "fatality": 0.1,
     "recovery period": 1000000,
     "min speed": 1,
     "max speed": 2,
-    "min size": 10,
-    "max size": 10
+    "min size": 2,
+    "max size": 3
 
 }
